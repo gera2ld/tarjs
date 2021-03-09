@@ -1,0 +1,12 @@
+{
+  "name": "@gera2ld/tarjs",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:gera2ld/tarjs.git",
+  "author": "Gerald <gera2ld@live.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
