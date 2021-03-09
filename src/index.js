@@ -162,6 +162,7 @@ export class TarWriter {
     this.$fileData.push({
       name,
       type: TYPE_DIR,
+      size: 0,
       opts,
     });
   }
