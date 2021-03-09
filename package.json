@@ -1,12 +1,41 @@
 {
   "name": "@gera2ld/tarjs",
   "version": "0.1.0",
-  "main": "index.js",
-  "repository": "git@github.com:gera2ld/tarjs.git",
+  "description": "",
   "author": "Gerald <gera2ld@live.com>",
   "license": "MIT",
+  "repository": "git@github.com:gera2ld/tarjs.git",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "ci": "run-s lint",
+    "lint": "eslint src",
+    "dev": "rollup -wc rollup.conf.js",
+    "clean": "del-cli dist",
+    "build:js": "rollup -c rollup.conf.js",
+    "build": "run-s ci clean build:js",
+    "postinstall": "husky install",
+    "pinst": "pinst",
+    "prepublishOnly": "run-s build 'pinst -- --disable'",
+    "postpublish": "pinst --enable"
+  },
+  "main": "dist/index.umd.js",
+  "unpkg": "dist/index.umd.min.js",
+  "jsdelivr": "dist/index.umd.min.js",
+  "module": "dist/index.esm.js",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.13.7"
+  },
+  "devDependencies": {
+    "husky": "^5.1.1",
+    "pinst": "^2.1.6",
+    "@gera2ld/plaid": "~2.2.2",
+    "@gera2ld/plaid-rollup": "~2.2.0",
+    "del-cli": "^3.0.1"
   }
 }
