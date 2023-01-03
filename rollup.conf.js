@@ -15,7 +15,8 @@ const bundleOptions = {
   extend: true,
   esModule: false,
 };
-const postcssConfig = loadConfigSync('postcss') || require('@gera2ld/plaid/config/postcssrc');
+const postcssConfig =
+  loadConfigSync('postcss') || require('@gera2ld/plaid/config/postcssrc');
 const postcssOptions = {
   ...postcssConfig,
   inject: false,
@@ -23,8 +24,9 @@ const postcssOptions = {
 const rollupConfig = [
   {
     input: {
-      input: 'src/index.js',
+      input: 'src/index.ts',
       plugins: getRollupPlugins({
+        minimize: false,
         esm: true,
         extensions: defaultOptions.extensions,
         postcss: postcssOptions,
@@ -33,12 +35,12 @@ const rollupConfig = [
     },
     output: {
       format: 'esm',
-      file: `${DIST}/${FILENAME}.esm.js`,
+      file: `${DIST}/${FILENAME}.mjs`,
     },
   },
-  ...[false, true].map(minimize => ({
+  ...[false].map((minimize) => ({
     input: {
-      input: 'src/index.js',
+      input: 'src/index.ts',
       plugins: getRollupPlugins({
         minimize,
         esm: true,
@@ -50,8 +52,8 @@ const rollupConfig = [
       }),
     },
     output: {
-      format: 'umd',
-      file: `${DIST}/${FILENAME}.umd${minimize ? '.min' : ''}.js`,
+      format: 'iife',
+      file: `${DIST}/${FILENAME}${minimize ? '.min' : ''}.js`,
       name: 'tarball',
       ...bundleOptions,
     },
@@ -64,9 +66,9 @@ rollupConfig.forEach((item) => {
     // If set to false, circular dependencies and live bindings for external imports won't work
     externalLiveBindings: false,
     ...item.output,
-    ...BANNER && {
+    ...(BANNER && {
       banner: BANNER,
-    },
+    }),
   };
 });
 
