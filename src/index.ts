@@ -1,6 +1,6 @@
 export enum TarFileType {
-  File = 48,
-  Dir = 53,
+  File,
+  Dir,
 }
 const encoder = new TextEncoder();
 const utf8Encode = (input: string) => encoder.encode(input);
@@ -44,9 +44,9 @@ export class TarReader {
     this.#buffer = null;
   }
 
-  async readFile(file: Blob) {
+  async readFile(file: ArrayBuffer | Uint8Array | Blob) {
     this.reset();
-    this.#buffer = await readFileAsArrayBuffer(file);
+    this.#buffer = await getArrayBuffer(file);
     this.#readFileInfo();
     return this.#fileInfo;
   }
@@ -58,10 +58,8 @@ export class TarReader {
     let fileName = '';
     let fileType: TarFileType;
     while (offset < this.#buffer.byteLength - 512) {
-      fileName = this.#readFileName(offset); // file name
-      if (!fileName) {
-        break;
-      }
+      fileName = this.#readFileName(offset);
+      if (!fileName) break;
       fileType = this.#readFileType(offset);
       fileSize = this.#readFileSize(offset);
 
@@ -131,40 +129,18 @@ export class TarWriter {
     this.#fileData = [];
   }
 
-  addTextFile(name: string, text: string, opts?: Partial<ITarWriteOptions>) {
-    const view = utf8Encode(text);
-    const item: ITarWriteItem = {
-      name,
-      type: TarFileType.File,
-      data: view,
-      size: view.length,
-      opts,
-    };
-    this.#fileData.push(item);
-  }
-
-  addFileArrayBuffer(
+  addFile(
     name: string,
-    arrayBuffer: ArrayBuffer,
+    file: string | ArrayBuffer | Uint8Array | Blob,
     opts?: Partial<ITarWriteOptions>
   ) {
-    const view = new Uint8Array(arrayBuffer);
+    const data = getArrayBuffer(file);
+    const size = (data as ArrayBuffer).byteLength ?? (file as Blob).size;
     const item: ITarWriteItem = {
       name,
       type: TarFileType.File,
-      data: view,
-      size: view.length,
-      opts,
-    };
-    this.#fileData.push(item);
-  }
-
-  addFile(name: string, file: Blob, opts?: Partial<ITarWriteOptions>) {
-    const item: ITarWriteItem = {
-      name,
-      type: TarFileType.File,
-      size: file.size,
-      data: readFileAsArrayBuffer(file),
+      data,
+      size,
       opts,
     };
     this.#fileData.push(item);
@@ -181,16 +157,17 @@ export class TarWriter {
   }
 
   #createBuffer() {
-    let dataSize = 0;
-    this.#fileData.forEach((item) => {
-      dataSize += 512 + 512 * Math.floor((item.size + 511) / 512);
-    });
+    const dataSize = this.#fileData.reduce(
+      (prev, item) => prev + 512 + 512 * Math.floor((item.size + 511) / 512),
+      0
+    );
     const bufSize = 10240 * Math.floor((dataSize + 10240 - 1) / 10240);
     this.#buffer = new ArrayBuffer(bufSize);
   }
 
   async write() {
     this.#createBuffer();
+    const view = new Uint8Array(this.#buffer);
     let offset = 0;
     for (const item of this.#fileData) {
       // write header
@@ -202,10 +179,7 @@ export class TarWriter {
 
       // write data
       const data = new Uint8Array(await item.data);
-      const view = new Uint8Array(this.#buffer, offset + 512, item.size);
-      for (let i = 0; i < item.size; i += 1) {
-        view[i] = data[i];
-      }
+      view.set(data, offset + 512);
       offset += 512 + 512 * Math.floor((item.size + 511) / 512);
     }
     return new Blob([this.#buffer], { type: 'application/x-tar' });
@@ -307,14 +281,9 @@ export class TarWriter {
   }
 }
 
-function readFileAsArrayBuffer(file: Blob) {
-  return new Promise<ArrayBuffer>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const view = e.target.result as ArrayBuffer;
-      resolve(view);
-    };
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
-  });
+function getArrayBuffer(file: string | ArrayBuffer | Uint8Array | Blob) {
+  if (typeof file === 'string') return utf8Encode(file).buffer;
+  if (file instanceof ArrayBuffer) return file;
+  if (ArrayBuffer.isView(file)) return new Uint8Array(file).buffer;
+  return file.arrayBuffer();
 }
