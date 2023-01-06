@@ -19,7 +19,8 @@
     "prepare": "husky install",
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
     "prepublishOnly": "run-s build",
-    "build:types": "tsc -p tsconfig.prod.json"
+    "build:types": "tsc -p tsconfig.prod.json",
+    "test": "jest"
   },
   "unpkg": "dist/index.js",
   "jsdelivr": "dist/index.js",
@@ -35,9 +36,13 @@
   },
   "devDependencies": {
     "@gera2ld/plaid": "~2.5.6",
+    "@gera2ld/plaid-common-ts": "~2.5.1",
     "@gera2ld/plaid-rollup": "~2.5.6",
-    "husky": "^8.0.2",
+    "@gera2ld/plaid-test": "~2.5.8",
     "del-cli": "^5.0.0",
-    "@gera2ld/plaid-common-ts": "~2.5.1"
+    "husky": "^8.0.2"
+  },
+  "jest": {
+    "testEnvironment": "./test/env.js"
   }
 }
