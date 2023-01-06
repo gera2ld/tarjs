@@ -10,7 +10,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "ci": "run-s lint",
+    "ci": "run-s lint test",
     "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ext .ts,tsx src",
     "dev": "rollup -wc rollup.conf.js",
     "clean": "del-cli dist types",
