@@ -1,6 +1,6 @@
 export enum TarFileType {
-  File,
-  Dir,
+  File = 0,
+  Dir = 5,
 }
 const encoder = new TextEncoder();
 const utf8Encode = (input: string) => encoder.encode(input);
