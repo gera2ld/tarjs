@@ -1,15 +1,15 @@
 # @gera2ld/tarjs
 
-Based on [ankitrohatgi/tarballjs](https://github.com/ankitrohatgi/tarballjs).
+A zero-dependency JavaScript library to read and write tar files.
 
 ## Features
 
 - reading and writing
 - UTF-8 support for filenames and contents
+- no dependency, with support for Node.js, browsers, Deno
 
 ## Limitations
 
-- Browser only, no support for NodeJS
 - File name (including path) has to be less than 100 characters
 - Maximum total file size seems to be limited to somewhere between 500MB to 1GB (exact limit is unknown)
 
@@ -18,9 +18,16 @@ Based on [ankitrohatgi/tarballjs](https://github.com/ankitrohatgi/tarballjs).
 ```js
 // ESM
 import { TarReader, TarWriter } from '@gera2ld/tarjs';
-// UMD
-const { TarReader, TarWriter } = window.tarball;
+// IIFE
+const { TarReader, TarWriter } = window.tarjs;
 
-const reader = new TarReader();
-const items = await reader.readFile(tarBlob);
+const reader = await TarReader.load(tarFile);
+console.log('Loaded items:', reader.fileInfos);
 ```
+
+Check [jsdoc](https://www.jsdocs.io/package/@gera2ld/tarjs) for API reference.
+
+## Credits
+
+- [ankitrohatgi/tarballjs](https://github.com/ankitrohatgi/tarballjs)
+- [Basic Tar Format](https://www.gnu.org/software/tar/manual/html_node/Standard.html)
