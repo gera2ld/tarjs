@@ -130,8 +130,12 @@ function writeFileGroup(buffer: ArrayBuffer, group: string, offset: number) {
 }
 
 function writeChecksum(buffer: ArrayBuffer, offset: number) {
-  // add up header bytes
   const header = new Uint8Array(buffer, offset, 512);
+  // fill checksum fields with space
+  for (let i = 0; i < 8; i += 1) {
+    header[148 + i] = 32;
+  }
+  // add up header bytes as checksum
   let chksum = 0;
   for (let i = 0; i < 512; i += 1) {
     chksum += header[i];
